@@ -65,7 +65,7 @@ namespace ADOFAIModTemplate
             else
             {
                 modEntry.Logger.Log("Mod disabled / Mod 已禁用");
-                Harmony?.UnpatchAll();
+                Harmony?.UnpatchAll(modEntry.Info.Id);
             }
             return true;
         }
