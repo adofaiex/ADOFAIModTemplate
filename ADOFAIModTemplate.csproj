@@ -29,24 +29,8 @@
     <AutoLaunchGame>true</AutoLaunchGame>
   </PropertyGroup>
 
-  <!-- 根据 GameExePath 计算托管程序集路径 / Calculate managed assemblies path from GameExePath -->
-  <PropertyGroup Condition="'$(GameExePath)' != ''">
-    <GameDir>$([System.IO.Path]::GetDirectoryName($(GameExePath)))</GameDir>
-    <GameFileName>$([System.IO.Path]::GetFileNameWithoutExtension($(GameExePath)))</GameFileName>
-    <IsWindows Condition="'$(OS)' == 'Windows_NT'">true</IsWindows>
-    <IsUnix Condition="'$(OS)' != 'Windows_NT'">true</IsUnix>
-    <PathSeparator Condition="'$(IsWindows)' == 'true'">\</PathSeparator>
-    <PathSeparator Condition="'$(IsUnix)' == 'true'">/</PathSeparator>
-    <ManagedAssembliesDir>$(GameDir)$(PathSeparator)$(GameFileName)_Data$(PathSeparator)Managed</ManagedAssembliesDir>
-  </PropertyGroup>
-
-  <!-- 验证 GameExePath / Validate GameExePath -->
-  <Target Name="ValidateGameExePath" BeforeTargets="Build">
-    <Error Text="GameExePath 不能为空！请在 .csproj 文件中设置有效的游戏可执行文件路径。/ GameExePath cannot be empty! Please set a valid game executable path in .csproj file." 
-           Condition="'$(GameExePath)' == '' OR '$(GameExePath)' == 'GAME_EXE_PATH_PLACEHOLDER'" />
-    <Error Text="游戏可执行文件不存在：$(GameExePath)。请检查路径是否正确。/ Game executable does not exist: $(GameExePath). Please check if the path is correct." 
-           Condition="'$(GameExePath)' != '' AND !Exists('$(GameExePath)')" />
-  </Target>
+  <!-- 导入构建目标 / Import build targets -->
+  <Import Project="ADOFAIMod.targets" />
 
   <ItemGroup>
     <Reference Include="0Harmony">
@@ -317,54 +301,5 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
-  <Target Name="CopyToOut" AfterTargets="Build">
-    <PropertyGroup>
-      <OutDir>$(ProjectDir)out\</OutDir>
-    </PropertyGroup>
-    <MakeDir Directories="$(OutDir)" />
-    <MakeDir Directories="$(OutDir)Resources" />
-    <ItemGroup>
-      <FilesToCopy Include="$(OutputPath)$(AssemblyName).dll" />
-      <FilesToCopy Include="$(ProjectDir)Info.json" />
-      <ResourceFiles Include="$(ProjectDir)Resources\**\*" Exclude="$(ProjectDir)Resources\**\*\" />
-    </ItemGroup>
-    <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
-    <Copy SourceFiles="@(ResourceFiles)" DestinationFolder="$(OutDir)Resources\%(RecursiveDir)" SkipUnchangedFiles="true" />
-    <Message Text="Files copied to out folder: $(OutDir)" Importance="high" />
-  </Target>
-
-  <Target Name="DeployAndLaunch" AfterTargets="CopyToOut" Condition="'$(GameExePath)' != '' AND Exists('$(GameExePath)')">
-    <PropertyGroup>
-      <ModsDir>$(GameDir)$(PathSeparator)Mods$(PathSeparator)$(AssemblyName)$(PathSeparator)</ModsDir>
-    </PropertyGroup>
-    
-    <Message Text="Game Directory: $(GameDir)" Importance="high" />
-    <Message Text="Managed Assemblies Path: $(ManagedAssembliesDir)" Importance="high" />
-    <Message Text="Platform: $(OS)" Importance="high" />
-    
-    <MakeDir Directories="$(ModsDir)" />
-    <MakeDir Directories="$(ModsDir)Resources" />
-    <ItemGroup>
-      <ModFiles Include="$(ProjectDir)out\*.*" Exclude="$(ProjectDir)out\Resources\**\*" />
-      <ModResourceFiles Include="$(ProjectDir)out\Resources\**\*" Exclude="$(ProjectDir)out\Resources\**\*\" />
-    </ItemGroup>
-    <Copy SourceFiles="@(ModFiles)" DestinationFolder="$(ModsDir)" SkipUnchangedFiles="true" />
-    <Copy SourceFiles="@(ModResourceFiles)" DestinationFolder="$(ModsDir)Resources\%(RecursiveDir)" SkipUnchangedFiles="true" />
-    <Message Text="Mod deployed to game directory: $(ModsDir)" Importance="high" />
-    
-    <!-- Windows 启动命令 / Windows launch command -->
-    <Exec Command="start &quot;&quot; &quot;$(GameExePath)&quot;" 
-          IgnoreExitCode="true" 
-          Condition="'$(AutoLaunchGame)' == 'true' AND '$(IsWindows)' == 'true'" />
-    
-    <!-- Linux/Unix 启动命令 / Linux/Unix launch command -->
-    <Exec Command="chmod +x &quot;$(GameExePath)&quot; &amp;&amp; nohup &quot;$(GameExePath)&quot; &gt; /dev/null 2&gt;&amp;1 &amp;" 
-          IgnoreExitCode="true" 
-          Condition="'$(AutoLaunchGame)' == 'true' AND '$(IsUnix)' == 'true'" />
-    
-    <Message Text="Game launched: $(GameExePath)" Importance="high" Condition="'$(AutoLaunchGame)' == 'true'" />
-    <Message Text="Auto-launch disabled. Game not started." Importance="high" Condition="'$(AutoLaunchGame)' != 'true'" />
-  </Target>
 
 </Project>
