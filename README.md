@@ -9,9 +9,11 @@ A Dance of Fire and Ice (ADOFAI) UnityModManager (UMM) Mod development template.
 ```
 Project Root / 项目根目录/
 ├── ADOFAIModTemplate.csproj    # Project file / 项目文件
-├── Main.cs                      # Main mod class / 主 Mod 类
-├── Settings.cs               # Mod settings class / Mod 设置类
-├── Patches.cs                   # Harmony patches / Harmony 补丁
+├── src/                         # Source code / 源代码
+│   ├── Main.cs                  # Main mod class / 主 Mod 类
+│   ├── Settings.cs              # Mod settings class / Mod 设置类
+│   ├── Patches.cs               # Harmony patches / Harmony 补丁
+│   └── ResourceLoader.cs        # Resource loader / 资源加载器
 ├── Info.json                    # UMM mod info file / UMM Mod 信息文件
 ├── Properties/
     └── AssemblyInfo.cs          # Assembly info / 程序集信息
