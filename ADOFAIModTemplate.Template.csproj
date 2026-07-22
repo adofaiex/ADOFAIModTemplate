@@ -29,15 +29,10 @@
   <ItemGroup>
     <!-- 包含所有模板文件，排除不需要的文件和文件夹 -->
     <Content Include="**\*" 
-             Exclude="**\bin\**;**\.gitignore;**\TestModProject\**;**\obj\**;**\out\**;**\.vs\**;**\.idea\**;**\.git\**;**\*.user;**\*.suo;**\*.sln;**\*.sln.DotSettings.user;**\*.nupkg;**\*.snupkg;**\ADOFAIModTemplate.Template.csproj;**\pack.bat;**\README.md" />
+             Exclude="**\bin\**;**\TestModProject\**;**\obj\**;**\out\**;**\.vs\**;**\.idea\**;**\.git\**;**\*.user;**\*.suo;**\*.sln;**\*.sln.DotSettings.user;**\*.nupkg;**\*.snupkg;**\lib\**\*.dll;**\lib\**\*.pdb;**\lib\**\*.xml;**\ADOFAIModTemplate.Template.csproj;**\pack.bat;**\README.md" />
     
     <!-- 包含 README 作为包文档 -->
     <None Include="README.md" Pack="true" PackagePath="\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <!-- 确保模板配置文件被包含 -->
-    <Content Include=".template.config\**\*" />
   </ItemGroup>
 
 </Project>

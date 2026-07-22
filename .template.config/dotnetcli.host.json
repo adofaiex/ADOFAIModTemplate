@@ -13,6 +13,9 @@
       "longName": "version",
       "shortName": "v"
     },
+    "DependencyMode": {
+      "longName": "dependency-mode"
+    },
     "GameExePath": {
       "longName": "game-path",
       "shortName": "g"
