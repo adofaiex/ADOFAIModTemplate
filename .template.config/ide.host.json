@@ -24,6 +24,13 @@
       "isVisible": true
     },
     {
+      "id": "DependencyMode",
+      "name": {
+        "text": "程序集依赖模式（GamePath / LocalCopy）"
+      },
+      "isVisible": true
+    },
+    {
       "id": "GameExePath",
       "name": {
         "text": "游戏 EXE 路径（可选）"

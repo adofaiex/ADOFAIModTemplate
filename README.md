@@ -15,6 +15,7 @@ Project Root / 项目根目录/
 │   ├── Patches.cs               # Harmony patches / Harmony 补丁
 │   └── ResourceLoader.cs        # Resource loader / 资源加载器
 ├── Info.json                    # UMM mod info file / UMM Mod 信息文件
+├── lib/Managed/                  # LocalCopy dependencies (generated locally) / 本地依赖（本机生成）
 ├── Properties/
     └── AssemblyInfo.cs          # Assembly info / 程序集信息
 
@@ -27,6 +28,7 @@ Project Root / 项目根目录/
 - ✅ Mod settings with GUI / 带 GUI 的 Mod 设置
 - ✅ Auto-deploy to game folder / 自动部署到游戏文件夹
 - ✅ Optional auto-launch game / 可选的自动启动游戏
+- ✅ Game DLL dependency modes: direct reference or local copy / 游戏 DLL 依赖模式：直接引用或本地复制
 - ✅ Bilingual comments (English/Chinese) / 双语注释（英文/中文）
 
 ## Development Environment / 开发环境
@@ -66,6 +68,9 @@ dotnet new adofaimod -n MyModName -d "My Mod Description" -a "Your Name" -v "1.0
 # 带游戏路径（自动部署和启动）
 dotnet new adofaimod -n MyModName -g "C:\Games\ADOFAI\A Dance of Fire and Ice.exe"
 
+# Use project-local game DLLs / 使用项目内的游戏 DLL
+dotnet new adofaimod -n MyModName --dependency-mode LocalCopy -g "C:\Games\ADOFAI\A Dance of Fire and Ice.exe"
+
 # Create solution file (if needed)
 # 创建解决方案文件（如果需要）
 cd MyModName
@@ -89,7 +94,8 @@ After installing the template, you can also create projects directly from your I
 - `-d, --description`: Mod description / Mod 描述
 - `-a, --author`: Author name / 作者名称
 - `-v, --version`: Version number / 版本号
-- `-g, --game-path`: Game exe path (optional, for auto-deploy and launch) / 游戏 exe 路径
+- `--dependency-mode`: `GamePath` or `LocalCopy`; defaults to `GamePath` / 依赖模式，默认为 `GamePath`
+- `-g, --game-path`: Game exe path; required for direct references and initial local copying / 游戏 exe 路径，直接引用或首次复制时需要
 
 ### Uninstall Template / 卸载模板
 ```bash
@@ -116,7 +122,7 @@ dotnet build YourModName.sln -c Release
 dotnet build YourModName.csproj -c Release
 ```
 
-### Configure Game Path and Auto-Launch / 配置游戏路径和自动启动
+### Configure Dependencies and Auto-Launch / 配置依赖和自动启动
 
 If you didn't specify the game path when creating the project, you can manually edit the `.csproj` file:
 
@@ -124,14 +130,55 @@ If you didn't specify the game path when creating the project, you can manually 
 
 ```xml
 <PropertyGroup>
+  <DependencyMode>GamePath</DependencyMode>
   <GameExePath>C:\Games\ADOFAI\A Dance of Fire and Ice.exe</GameExePath>
   <AutoLaunchGame>true</AutoLaunchGame>
 </PropertyGroup>
 ```
 
 **Properties / 属性:**
-- `GameExePath`: Path to game executable / 游戏可执行文件路径
+- `DependencyMode`: `GamePath` directly references `<GameExePath>_Data/Managed`; `LocalCopy` references project-local `lib/Managed` / `GamePath` 直接引用游戏目录，`LocalCopy` 使用项目内 DLL
+- `GameExePath`: Game executable path. It is also used for automatic deployment and launch / 游戏可执行文件路径，也用于自动部署和启动
 - `AutoLaunchGame`: Set to `true` to auto-launch game after build, `false` to disable / 设为 `true` 构建后自动启动游戏，`false` 禁用
+
+#### GamePath mode / GamePath 模式
+
+This is the default and keeps the existing behavior. The compiler reads the DLLs directly from:
+
+这是默认模式，保持原有行为。编译器直接从以下目录读取 DLL：
+
+```text
+<Game directory>/<Game name>_Data/Managed/
+```
+
+#### LocalCopy mode / LocalCopy 模式
+
+Set the dependency mode to `LocalCopy`:
+
+将依赖模式设置为 `LocalCopy`：
+
+```xml
+<PropertyGroup>
+  <DependencyMode>LocalCopy</DependencyMode>
+  <GameExePath>C:\Games\ADOFAI\A Dance of Fire and Ice.exe</GameExePath>
+</PropertyGroup>
+```
+
+The first build copies missing template dependencies into `lib/Managed`. Once the local DLLs are complete, `GameExePath` can be removed for compilation. If it remains configured, it continues to support automatic deployment and game launch.
+
+首次构建会把缺失的模板依赖复制到 `lib/Managed`。本地 DLL 完整后，编译时可以移除 `GameExePath`；如果保留该配置，仍可用于自动部署和启动游戏。
+
+To explicitly refresh the local DLLs from the configured game directory:
+
+如果需要从游戏目录显式刷新本地 DLL：
+
+```powershell
+dotnet msbuild -t:CopyGameDlls
+```
+
+Normal builds do not overwrite existing local DLLs. The copied game DLLs are local development files and are excluded from the template package and source control.
+
+普通构建不会覆盖已有本地 DLL。复制的游戏 DLL 仅用于本地开发，不会进入模板包或源码管理。
 
 After configuration, each build will automatically:
 
@@ -140,6 +187,10 @@ After configuration, each build will automatically:
 1. Copy files to `out/` folder / 复制文件到 `out/` 文件夹
 2. Deploy to game's `Mods/YourModName/` folder / 部署到游戏的 `Mods/YourModName/` 文件夹
 3. Launch the game (if `AutoLaunchGame` is `true`) / 启动游戏（如果 `AutoLaunchGame` 为 `true`）
+
+In `LocalCopy` mode, the dependency copy step runs before compilation only when local DLLs are missing.
+
+在 `LocalCopy` 模式下，只有本地 DLL 缺失时，编译前才会执行依赖复制步骤。
 
 ## Install Mod / 安装 Mod
 

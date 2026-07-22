@@ -67,3 +67,8 @@ $RECYCLE.BIN/
 
 # Other files
 TestModProject
+
+# Local game dependencies copied by LocalCopy mode
+lib/Managed/**/*.dll
+lib/Managed/**/*.pdb
+lib/Managed/**/*.xml

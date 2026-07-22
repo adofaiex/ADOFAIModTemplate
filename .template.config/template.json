@@ -38,16 +38,19 @@
       "defaultValue": "1.0.0",
       "description": "初始版本号"
     },
+    "DependencyMode": {
+      "type": "parameter",
+      "datatype": "text",
+      "replaces": "DEPENDENCY_MODE_PLACEHOLDER",
+      "defaultValue": "GamePath",
+      "description": "程序集依赖模式：GamePath 或 LocalCopy"
+    },
     "GameExePath": {
       "type": "parameter",
       "datatype": "text",
-      "replaces": "GAME_EXE_PATH_PLACEHOLDER",
-      "isRequired": true,
-      "description": "游戏 exe 路径（必填，用于添加程序集引用，自动部署和启动）"
-    },
-    "ValidateGameExePath": {
-      "type": "computed",
-      "value": "(GameExePath != \"\" && GameExePath != \"GAME_EXE_PATH_PLACEHOLDER\")"
+      "replaces": "D:\\Steam\\steamapps\\common\\A Dance of Fire and Ice\\A Dance of Fire and Ice.exe",
+      "defaultValue": "GAME_EXE_PATH_PLACEHOLDER",
+      "description": "游戏 exe 路径（用于直接引用、首次复制、自动部署和启动）"
     }
   },
   "sources": [
@@ -61,13 +64,15 @@
             ".vs/**",
             ".idea/**",
             ".git/**",
-            ".gitignore",
             "*.user",
             "*.suo",
             "*.sln",
             "*.sln.DotSettings.user",
             "*.nupkg",
             "*.snupkg",
+            "lib/**/*.dll",
+            "lib/**/*.pdb",
+            "lib/**/*.xml",
             "*.Template.csproj",
             "pack.bat",
             "TestModProject/**",

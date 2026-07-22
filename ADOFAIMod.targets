@@ -1,22 +1,92 @@
 <Project>
 
-    <!-- 根据 GameExePath 计算托管程序集路径 / Calculate managed assemblies path from GameExePath -->
-    <PropertyGroup Condition="'$(GameExePath)' != ''">
-        <GameDir>$([System.IO.Path]::GetDirectoryName($(GameExePath)))</GameDir>
-        <GameFileName>$([System.IO.Path]::GetFileNameWithoutExtension($(GameExePath)))</GameFileName>
+    <!-- 依赖模式 / Dependency mode -->
+    <PropertyGroup>
+        <DependencyMode Condition="'$(DependencyMode)' == '' OR '$(DependencyMode)' == 'DEPENDENCY_MODE_PLACEHOLDER'">GamePath</DependencyMode>
         <IsWindows Condition="'$(OS)' == 'Windows_NT'">true</IsWindows>
         <IsUnix Condition="'$(OS)' != 'Windows_NT'">true</IsUnix>
         <PathSeparator Condition="'$(IsWindows)' == 'true'">\</PathSeparator>
         <PathSeparator Condition="'$(IsUnix)' == 'true'">/</PathSeparator>
-        <ManagedAssembliesDir>$(GameDir)$(PathSeparator)$(GameFileName)_Data$(PathSeparator)Managed</ManagedAssembliesDir>
+        <LocalManagedAssembliesDir Condition="'$(LocalManagedAssembliesDir)' == ''">$(MSBuildProjectDirectory)$(PathSeparator)lib$(PathSeparator)Managed</LocalManagedAssembliesDir>
     </PropertyGroup>
 
-    <!-- 验证 GameExePath / Validate GameExePath -->
-    <Target Name="ValidateGameExePath" BeforeTargets="Build">
-        <Error Text="GameExePath 不能为空！请在 .csproj 文件中设置有效的游戏可执行文件路径。/ GameExePath cannot be empty! Please set a valid game executable path in .csproj file."
+    <!-- 根据 GameExePath 计算游戏托管程序集路径 / Calculate game managed assemblies path -->
+    <PropertyGroup Condition="'$(GameExePath)' != '' AND '$(GameExePath)' != 'GAME_EXE_PATH_PLACEHOLDER'">
+        <GameDir>$([System.IO.Path]::GetDirectoryName('$(GameExePath)'))</GameDir>
+        <GameFileName>$([System.IO.Path]::GetFileNameWithoutExtension('$(GameExePath)'))</GameFileName>
+        <GameManagedAssembliesDir>$(GameDir)$(PathSeparator)$(GameFileName)_Data$(PathSeparator)Managed</GameManagedAssembliesDir>
+    </PropertyGroup>
+
+    <!-- 根据依赖模式选择程序集目录 / Select assembly directory based on dependency mode -->
+    <PropertyGroup Condition="'$(DependencyMode)' == 'GamePath'">
+        <ManagedAssembliesDir>$(GameManagedAssembliesDir)</ManagedAssembliesDir>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(DependencyMode)' == 'LocalCopy'">
+        <ManagedAssembliesDir>$(LocalManagedAssembliesDir)</ManagedAssembliesDir>
+    </PropertyGroup>
+
+    <!-- 验证依赖配置 / Validate dependency configuration -->
+    <Target Name="ValidateDependencyMode" BeforeTargets="ResolveAssemblyReferences">
+        <Error Text="DependencyMode 必须是 GamePath 或 LocalCopy。/ DependencyMode must be GamePath or LocalCopy."
+               Condition="'$(DependencyMode)' != 'GamePath' AND '$(DependencyMode)' != 'LocalCopy'" />
+        <Error Text="GamePath 模式需要设置有效的 GameExePath。/ GamePath mode requires a valid GameExePath."
+               Condition="'$(DependencyMode)' == 'GamePath' AND ('$(GameExePath)' == '' OR '$(GameExePath)' == 'GAME_EXE_PATH_PLACEHOLDER')" />
+        <Error Text="游戏可执行文件不存在：$(GameExePath)。请检查路径是否正确。/ Game executable does not exist: $(GameExePath). Please check the path."
+               Condition="'$(DependencyMode)' == 'GamePath' AND '$(GameExePath)' != '' AND '$(GameExePath)' != 'GAME_EXE_PATH_PLACEHOLDER' AND !Exists('$(GameExePath)')" />
+        <Error Text="游戏托管程序集目录不存在：$(GameManagedAssembliesDir)。/ Game managed assemblies directory does not exist: $(GameManagedAssembliesDir)."
+               Condition="'$(DependencyMode)' == 'GamePath' AND '$(GameManagedAssembliesDir)' != '' AND !Exists('$(GameManagedAssembliesDir)')" />
+    </Target>
+
+    <!-- LocalCopy 模式首次构建时只复制缺失 DLL / Copy only missing DLLs on the first LocalCopy build -->
+    <Target Name="CopyMissingGameDlls" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="ValidateDependencyMode" Condition="'$(DependencyMode)' == 'LocalCopy'">
+        <ItemGroup>
+            <MissingLocalAssembly Include="@(GameAssemblyFiles)"
+                                  Condition="!Exists('$(LocalManagedAssembliesDir)$(PathSeparator)%(Identity)')" />
+            <MissingGameSource Include="@(MissingLocalAssembly)"
+                               Condition="'$(GameManagedAssembliesDir)' != '' AND !Exists('$(GameManagedAssembliesDir)$(PathSeparator)%(Identity)')" />
+        </ItemGroup>
+
+        <Error Text="LocalCopy 模式缺少本地 DLL。请设置有效的 GameExePath 以进行首次复制，或先执行 dotnet msbuild -t:CopyGameDlls。/ LocalCopy mode is missing local DLLs. Set a valid GameExePath for the initial copy, or run dotnet msbuild -t:CopyGameDlls."
+               Condition="'@(MissingLocalAssembly)' != '' AND ('$(GameExePath)' == '' OR '$(GameExePath)' == 'GAME_EXE_PATH_PLACEHOLDER')" />
+        <Error Text="游戏可执行文件不存在：$(GameExePath)。请检查路径是否正确。/ Game executable does not exist: $(GameExePath). Please check the path."
+               Condition="'@(MissingLocalAssembly)' != '' AND '$(GameExePath)' != '' AND '$(GameExePath)' != 'GAME_EXE_PATH_PLACEHOLDER' AND !Exists('$(GameExePath)')" />
+        <Error Text="游戏托管程序集目录不存在：$(GameManagedAssembliesDir)。/ Game managed assemblies directory does not exist: $(GameManagedAssembliesDir)."
+               Condition="'@(MissingLocalAssembly)' != '' AND '$(GameManagedAssembliesDir)' != '' AND !Exists('$(GameManagedAssembliesDir)')" />
+        <Error Text="游戏目录缺少模板需要的 DLL：@(MissingGameSource)。/ The game directory is missing required template DLLs: @(MissingGameSource)."
+               Condition="'@(MissingGameSource)' != ''" />
+
+        <MakeDir Directories="$(LocalManagedAssembliesDir);$(LocalManagedAssembliesDir)$(PathSeparator)UnityModManager"
+                 Condition="'@(MissingLocalAssembly)' != ''" />
+        <Copy SourceFiles="@(MissingLocalAssembly->'$(GameManagedAssembliesDir)$(PathSeparator)%(Identity)')"
+              DestinationFiles="@(MissingLocalAssembly->'$(LocalManagedAssembliesDir)$(PathSeparator)%(Identity)')"
+              SkipUnchangedFiles="true"
+              Condition="'@(MissingLocalAssembly)' != ''" />
+        <Message Text="Missing game DLLs copied to local dependencies: $(LocalManagedAssembliesDir)"
+                 Importance="high"
+                 Condition="'@(MissingLocalAssembly)' != ''" />
+    </Target>
+
+    <!-- 从游戏目录刷新全部模板引用 DLL / Refresh all template reference DLLs from the game directory -->
+    <Target Name="CopyGameDlls">
+        <Error Text="CopyGameDlls 需要设置有效的 GameExePath。/ CopyGameDlls requires a valid GameExePath."
                Condition="'$(GameExePath)' == '' OR '$(GameExePath)' == 'GAME_EXE_PATH_PLACEHOLDER'" />
-        <Error Text="游戏可执行文件不存在：$(GameExePath)。请检查路径是否正确。/ Game executable does not exist: $(GameExePath). Please check if the path is correct."
-               Condition="'$(GameExePath)' != '' AND !Exists('$(GameExePath)')" />
+        <Error Text="游戏可执行文件不存在：$(GameExePath)。请检查路径是否正确。/ Game executable does not exist: $(GameExePath). Please check the path."
+               Condition="'$(GameExePath)' != '' AND '$(GameExePath)' != 'GAME_EXE_PATH_PLACEHOLDER' AND !Exists('$(GameExePath)')" />
+        <Error Text="游戏托管程序集目录不存在：$(GameManagedAssembliesDir)。/ Game managed assemblies directory does not exist: $(GameManagedAssembliesDir)."
+               Condition="'$(GameManagedAssembliesDir)' == '' OR !Exists('$(GameManagedAssembliesDir)')" />
+
+        <ItemGroup>
+            <MissingGameAssembly Include="@(GameAssemblyFiles)"
+                                 Condition="!Exists('$(GameManagedAssembliesDir)$(PathSeparator)%(Identity)')" />
+        </ItemGroup>
+        <Error Text="游戏目录缺少模板需要的 DLL：@(MissingGameAssembly)。/ The game directory is missing required template DLLs: @(MissingGameAssembly)."
+               Condition="'@(MissingGameAssembly)' != ''" />
+
+        <MakeDir Directories="$(LocalManagedAssembliesDir);$(LocalManagedAssembliesDir)$(PathSeparator)UnityModManager" />
+        <Copy SourceFiles="@(GameAssemblyFiles->'$(GameManagedAssembliesDir)$(PathSeparator)%(Identity)')"
+              DestinationFiles="@(GameAssemblyFiles->'$(LocalManagedAssembliesDir)$(PathSeparator)%(Identity)')"
+              SkipUnchangedFiles="true" />
+        <Message Text="Game DLLs copied to local dependencies: $(LocalManagedAssembliesDir)" Importance="high" />
     </Target>
 
     <!-- 复制文件到 out 文件夹 / Copy files to out folder -->
@@ -37,7 +107,7 @@
     </Target>
 
     <!-- 部署到游戏目录并启动游戏 / Deploy to game directory and launch game -->
-    <Target Name="DeployAndLaunch" AfterTargets="CopyToOut" Condition="'$(GameExePath)' != '' AND Exists('$(GameExePath)')">
+    <Target Name="DeployAndLaunch" AfterTargets="CopyToOut" Condition="'$(GameExePath)' != '' AND '$(GameExePath)' != 'GAME_EXE_PATH_PLACEHOLDER' AND Exists('$(GameExePath)')">
         <PropertyGroup>
             <ModsDir>$(GameDir)$(PathSeparator)Mods$(PathSeparator)$(AssemblyName)$(PathSeparator)</ModsDir>
         </PropertyGroup>

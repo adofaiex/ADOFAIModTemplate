@@ -25,7 +25,8 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <GameExePath>GAME_EXE_PATH_PLACEHOLDER</GameExePath>
+    <DependencyMode>DEPENDENCY_MODE_PLACEHOLDER</DependencyMode>
+    <GameExePath>D:\Steam\steamapps\common\A Dance of Fire and Ice\A Dance of Fire and Ice.exe</GameExePath>
     <AutoLaunchGame>true</AutoLaunchGame>
   </PropertyGroup>
 
@@ -294,6 +295,97 @@
     <Reference Include="UnityModManager">
       <HintPath>$(ManagedAssembliesDir)\UnityModManager\UnityModManager.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <!-- 模板实际需要的游戏程序集相对路径 / Relative paths of game assemblies required by the template -->
+  <ItemGroup>
+    <GameAssemblyFiles Include="UnityModManager\0Harmony.dll" />
+    <GameAssemblyFiles Include="Assembly-CSharp.dll" />
+    <GameAssemblyFiles Include="Assembly-CSharp-firstpass.dll" />
+    <GameAssemblyFiles Include="DOTween.dll" />
+    <GameAssemblyFiles Include="DOTweenPro.dll" />
+    <GameAssemblyFiles Include="RDTools.dll" />
+    <GameAssemblyFiles Include="UnityEngine.dll" />
+    <GameAssemblyFiles Include="UnityEngine.AccessibilityModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.AIModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.AndroidJNIModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.AnimationModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.ARModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.AssetBundleModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.AudioModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.ClothModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.ClusterInputModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.ClusterRendererModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.ContentLoadModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.CoreModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.CrashReportingModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.DirectorModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.DSPGraphModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.GameCenterModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.GIModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.GridModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.HotReloadModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.ImageConversionModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.IMGUIModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.InputLegacyModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.InputModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.JSONSerializeModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.LocalizationModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.NVIDIAModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.ParticleSystemModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.PerformanceReportingModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.Physics2DModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.PhysicsModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.ProfilerModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.PropertiesModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.Purchasing.dll" />
+    <GameAssemblyFiles Include="UnityEngine.Purchasing.AppleCore.dll" />
+    <GameAssemblyFiles Include="UnityEngine.Purchasing.AppleMacosStub.dll" />
+    <GameAssemblyFiles Include="UnityEngine.Purchasing.AppleStub.dll" />
+    <GameAssemblyFiles Include="UnityEngine.Purchasing.Codeless.dll" />
+    <GameAssemblyFiles Include="UnityEngine.Purchasing.SecurityCore.dll" />
+    <GameAssemblyFiles Include="UnityEngine.Purchasing.SecurityStub.dll" />
+    <GameAssemblyFiles Include="UnityEngine.Purchasing.Stores.dll" />
+    <GameAssemblyFiles Include="UnityEngine.Purchasing.WinRTCore.dll" />
+    <GameAssemblyFiles Include="UnityEngine.Purchasing.WinRTStub.dll" />
+    <GameAssemblyFiles Include="UnityEngine.RuntimeInitializeOnLoadManagerInitializerModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.ScreenCaptureModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.SharedInternalsModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.SpriteMaskModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.SpriteShapeModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.StreamingModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.SubstanceModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.SubsystemsModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.TerrainModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.TerrainPhysicsModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.TextCoreFontEngineModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.TextCoreTextEngineModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.TextRenderingModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.TilemapModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.TLSModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.UI.dll" />
+    <GameAssemblyFiles Include="UnityEngine.UIElementsModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.UIModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.UmbraModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.UnityAnalyticsCommonModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.UnityAnalyticsModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.UnityConnectModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.UnityCurlModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.UnityTestProtocolModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.UnityWebRequestAssetBundleModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.UnityWebRequestAudioModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.UnityWebRequestModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.UnityWebRequestTextureModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.UnityWebRequestWWWModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.VehiclesModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.VFXModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.VideoModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.VirtualTexturingModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.VRModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.WindModule.dll" />
+    <GameAssemblyFiles Include="UnityEngine.XRModule.dll" />
+    <GameAssemblyFiles Include="UnityFileDialog.dll" />
+    <GameAssemblyFiles Include="UnityModManager\UnityModManager.dll" />
   </ItemGroup>
 
   <ItemGroup>
